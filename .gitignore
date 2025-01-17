@@ -1,5 +1,1 @@
-src/Debug/*
-src/Release/*
-src/Drivers/*
-src/.cproject
-src/.settings/*
+build
