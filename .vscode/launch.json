@@ -1,0 +1,21 @@
+{
+    "configurations": [
+        {
+            "cwd": "${workspaceRoot}",
+            "executable": "${workspaceFolder}/build/Debug/telemetry_tx.elf",
+            "name": "STM32F103: Debug",
+            "request": "launch",
+            "type": "cortex-debug",
+            "servertype": "openocd",
+            "configFiles": [
+                "interface/stlink.cfg",
+                "target/stm32f1x.cfg"
+            ],
+            "preLaunchCommands": [
+                "monitor program ${workspaceFolder}/build/Debug/telemetry_tx.elf verify reset"
+            ],
+            "searchDir": [],
+            "showDevDebugOutput": "none"
+        }
+    ]
+}

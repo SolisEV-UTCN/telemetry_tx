@@ -1,1 +1,16 @@
-build
+# Ignore user settings
+.vscode/*
+!.vscode/c_cpp_properties.json
+!.vscode/launch.json
+!.vscode/settings.json
+!.vscode/tasks.json
+CMakeUserPresets.json
+CMakeCache.json
+
+# Ignore build
+build/*
+!build/.gitkeep
+
+# Ignore virtualenv
+.venv/
+venv/

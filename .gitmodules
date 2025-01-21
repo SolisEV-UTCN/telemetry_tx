@@ -1,9 +1,9 @@
-[submodule "lib/stm32f1xx-hal-driver"]
-	path = lib/stm32f1xx-hal-driver
+[submodule "libs/stm32f1xx-hal-driver"]
+	path = libs/stm32f1xx-hal-driver
 	url = git@github.com:STMicroelectronics/stm32f1xx-hal-driver.git
-[submodule "lib/cmsis-device-f1"]
-	path = lib/cmsis-device-f1
+[submodule "libs/cmsis-device-f1"]
+	path = libs/cmsis-device-f1
 	url = git@github.com:STMicroelectronics/cmsis-device-f1.git
-[submodule "lib/cmsis"]
-	path = lib/cmsis
+[submodule "libs/cmsis"]
+	path = libs/cmsis
 	url = git@github.com:STMicroelectronics/cmsis-core.git

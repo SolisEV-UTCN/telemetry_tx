@@ -1,0 +1,6 @@
+.venv
+.vscode
+build/.gitkeep
+docs
+scripts/build.sh
+venv

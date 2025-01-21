@@ -1,86 +1,48 @@
-#############################################################################################################################
-# file:  CMakeLists.txt
-# brief: Template "CMakeLists.txt" for building of executables and static libraries.
-#
-# usage: Edit "VARIABLES"-section to suit project requirements.
-#        For debug build:
-#          cmake -DCMAKE_TOOLCHAIN_FILE=cubeide-gcc.cmake  -S ./ -B Debug -G"Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug
-#          make -C Debug VERBOSE=1 -j
-#        For release build:
-#          cmake -DCMAKE_TOOLCHAIN_FILE=cubeide-gcc.cmake  -S ./ -B Release -G"Unix Makefiles" -DCMAKE_BUILD_TYPE=Release
-#          make -C Release VERBOSE=1 -j
-#############################################################################################################################
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.18)
+project(telemetry_tx LANGUAGES ASM C)
 
-###################### CONSTANTS ######################################
-set (PROJECT_TYPE_EXECUTABLE          "exe")
-set (PROJECT_TYPE_STATIC_LIBRARY      "static-lib")
-set (MCPU_CORTEX_M0				      "-mcpu=cortex-m0")
-set (MCPU_CORTEX_M0PLUS				  "-mcpu=cortex-m0plus")
-set (MCPU_CORTEX_M3				      "-mcpu=cortex-m3")
-set (MCPU_CORTEX_M4				      "-mcpu=cortex-m4")
-set (MCPU_CORTEX_M7				      "-mcpu=cortex-m7")
-set (MCPU_CORTEX_M33				  "-mcpu=cortex-m33")
-set (MCPU_CORTEX_M55				  "-mcpu=cortex-m55")
-set (MCPU_CORTEX_M85				  "-mcpu=cortex-m85")
-set (MFPU_FPV4_SP_D16                 "-mfpu=fpv4-sp-d16")
-set (MFPU_FPV5_D16                    "-mfpu=fpv5-d16")
-set (RUNTIME_LIBRARY_REDUCED_C        "--specs=nano.specs")
-set (RUNTIME_LIBRARY_STD_C            "")
-set (RUNTIME_LIBRARY_SYSCALLS_MINIMAL "--specs=nosys.specs")
-set (RUNTIME_LIBRARY_SYSCALLS_NONE    "")
-set (MFLOAT_ABI_SOFTWARE              "-mfloat-abi=soft")
-set (MFLOAT_ABI_HARDWARE              "-mfloat-abi=hard")
-set (MFLOAT_ABI_MIX                   "-mfloat-abi=softfp")
-#######################################################################
+# Compiler and linker options
+set(LINKER_SCRIPT "../../dev/linkers/STM32F103RBTX_FLASH.ld")
+set(MCPU "-mcpu=cortex-m3")
+set(MFLOAT_ABI "-mfloat-abi=soft")
+set(RUNTIME_LIBRARY "--specs=nano.specs")
+set(RUNTIME_LIBRARY_SYSCALLS "--specs=nosys.specs")
 
-###################### VARIABLES ######################################
-set (PROJECT_NAME             "telemetry_tx")
-set (PROJECT_TYPE             "exe")
-set (LINKER_SCRIPT            "../../linker/STM32F103RBTX_FLASH.ld")
-set (MCPU                     "-mcpu=Cortex-M3")
-set (MFLOAT_ABI               "")
-set (RUNTIME_LIBRARY          "--specs=nano.specs")
-set (RUNTIME_LIBRARY_SYSCALLS "--specs=nosys.specs")
+# Configure compiler and linker flags
+set(CMAKE_C_FLAGS "${MCPU} -std=gnu11 ${MFLOAT_ABI} ${RUNTIME_LIBRARY} -mthumb -Wall -Werror")
+set(CMAKE_EXE_LINKER_FLAGS "-T${LINKER_SCRIPT} ${RUNTIME_LIBRARY_SYSCALLS} -Wl,-Map=test.map -Wl,--gc-sections -static -Wl,--start-group -lc -lm -Wl,--end-group")
+set(CMAKE_ASM_FLAGS "${CMAKE_C_FLAGS} -x assembler-with-cpp")
 
+# Project configurations
+set(CMAKE_EXECUTABLE_SUFFIX ".elf")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CONAN_OPTION_PLATFORM})
 
-set (PROJECT_SOURCES
-	# LIST SOURCE FILES HERE
-	src/startup/startup_stm32f103rbtx.s
-	src/main.c
-	src/syscalls.c
-	src/sysmem.c
-	src/system_stm32f1xx.c
+include("dev/cmake/stm32f1xx_hal.cmake")
 
+set(PROJECT_INCLUDES
+    ${HAL_INCLUDES}
+    inc
+)
+set(PROJECT_SOURCES
+    src/startup/startup_stm32f103rbtx.s
+    src/startup/syscalls.c
+    src/startup/sysmem.c
+    src/startup/system_stm32f1xx.c
+    src/main.c
+    src/stm32f1xx_hal_msp.c
+    src/stm32f1xx_it.c
 )
 
-set (PROJECT_DEFINES
-	# LIST COMPILER DEFINITIONS HERE
-	STM32F103xB
-)
-
-set (PROJECT_INCLUDES
-	# LIST INCLUDE DIRECTORIES HERE
-	lib/cmsis/Include
-	lib/cmsis-device-f1/Include
-)
-
-############ MODIFY ACCORDING TO REQUIREMENTS) ########################
-
-#######################################################################
-
-################## PROJECT SETUP ######################################
-project(${PROJECT_NAME})
-enable_language(ASM)
-
+# Main executable
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES})
+include_directories(${PROJECT_INCLUDES})
+add_compile_definitions(
+    USE_HAL_DRIVER
+    STM32F103xB
+)
+
+# Link to HAL interface
+target_link_libraries(${PROJECT_NAME} PUBLIC ${STM32F1_HAL})
+
+include("dev/cmake/flash.cmake")
 add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_SIZE} $<TARGET_FILE:${CMAKE_PROJECT_NAME}>)
-
-add_compile_definitions (${PROJECT_DEFINES})
-include_directories (${PROJECT_INCLUDES})
-
-set (CMAKE_EXECUTABLE_SUFFIX ".elf")
-set (CMAKE_STATIC_LIBRARY_SUFFIX ".a")
-set (CMAKE_C_FLAGS "${MCPU} -std=gnu11 ${MFPU} ${MFLOAT_ABI} ${RUNTIME_LIBRARY} -mthumb -Wall -Werror")
-set (CMAKE_EXE_LINKER_FLAGS "-T${LINKER_SCRIPT} ${RUNTIME_LIBRARY_SYSCALLS} -Wl,-Map=test.map -Wl,--gc-sections -static -Wl,--start-group -lc -lm -Wl,--end-group")
-set (CMAKE_ASM_FLAGS "${CMAKE_C_FLAGS} -x assembler-with-cpp")
