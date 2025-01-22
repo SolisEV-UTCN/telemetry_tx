@@ -24,6 +24,7 @@ add_library(${STM32F1_HAL} STATIC
     ${HAL_PATH}/Src/stm32f1xx_hal_pwr.c
     ${HAL_PATH}/Src/stm32f1xx_hal_rcc.c
     ${HAL_PATH}/Src/stm32f1xx_hal_uart.c
+    ${HAL_PATH}/Src/stm32f1xx_hal_usart.c
     ${HAL_PATH}/Src/stm32f1xx_hal.c
 )
 target_include_directories(${STM32F1_HAL} PUBLIC ${HAL_INCLUDES})
