@@ -2,14 +2,14 @@
     "configurations": [
         {
             "name": "Linux",
-            "compilerPath": "/usr/bin/arm-none-eabi-gcc",
+            "compilerPath": "/usr/local/bin/arm-none-eabi-gcc",
             "compilerArgs": [
                 "-mcpu=cortex-m3",
                 "-mthumb"
             ],
             "intelliSenseMode": "linux-gcc-arm",
             "includePath": [
-                "/usr/arm-none-eabi/include",
+                "/usr/local/include/arm-none-eabi",
                 "${workspaceFolder}/libs/cmsis/Include",
                 "${workspaceFolder}/libs/cmsis-device-f1/Include",
                 "${workspaceFolder}/libs/stm32f1xx-hal-driver/Inc",

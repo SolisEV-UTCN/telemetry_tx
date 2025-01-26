@@ -12,64 +12,55 @@ This project is configured for STM32F103RB target (arch=arm32). To install ARM32
 
 _NOTE 1:_ Commands that start with `$` should be executed from the CLI.
 
-_NOTE 2:_ Certain commands require administrator privileges, so `sudo` might need to be prepended (Ex.: `$ sudo apt update`).
+_NOTE 2:_ WSL2 distors are also supported.
 
-_NOTE 3:_ WSL2 distors are also supported.
+### Linux
 
-### Debian/Ubuntu
-
-Install system requirements:
+Install [ARM GNU toolchain](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads). At the moment of writing this guide 14.2.Rel1 is latest version of the toolchain. Below there is an example on how to download and install x86_64 Linux hosted cross toolchain:
 
 ```
-$ apt update
-$ apt install build-essential \
-  cmake \
-  git
+$ cd /usr/local/src
+$ sudo wget https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz.asc https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz.sha256asc
 ```
 
-Clone repository, configure and activate virtual environment:
+_NOTE 1:_ Link in `wget` might be dead, so check the ARM GNU toolchain download page.
+
+It is a good idea to verify checksums:
 
 ```
-$ git clone --recurse-submodules --shallow-submodules https://github.com/SolisEV-UTCN/telemetry_tx.git telemetry_tx
-$ cd telemetry_tx
+$ md5sum -c arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz.asc
+$ sha256sum -c arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz.sha256asc
 ```
 
-### Arch
-
-Install system requirements and ARM toolchain:
+If checksums match you can safely continue:
 
 ```
-$ pacman -Sy
-$ pacman -Sy build-essential \
-  cmake \
-  git \
-  arm-none-eabi-binutils \
-  arm-none-eabi-gcc \
-  arm-none-eabi-gdb \
-  arm-none-eabi-newlib
+$ sudo tar -xvf arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz
+$ sudo rm *.tar.xz*
+$ cd arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/bin
+$ find . -type f -executable | while read bin; do
+  > sudo ln -s $(pwd)/$bin /usr/local/bin/
+  > done
+$ sudo ln -s /usr/local/src/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/ /usr/local/include/arm-none-eabi
 ```
 
-Clone repository, configure and activate virtual environment:
+Install additional requirements:
 
 ```
-$ git clone --recurse-submodules --shallow-submodules https://github.com/SolisEV-UTCN/telemetry_tx.git telemetry_tx
-$ cd telemetry_tx
+$ sudo apt update
+$ sudo apt install -y cmake git libusb-1.0 ninja-build openocd stlink-tools
 ```
 
-### Windows (WIP)
+### Windows
 
-Install system requirements and ARM toolchain:
+1. Install [ARM GNU toolchain](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads). At the moment of writing this guide 14.2.Rel1 is latest version of the toolchain.
+2. Install [Git](https://git-scm.com/downloads/win).
+3. Install [CMake](https://cmake.org/download/).
+4. Install [Ninja](https://github.com/ninja-build/ninja/releases).
+5. Install [OpenOCD](https://github.com/xpack-dev-tools/openocd-xpack/releases).
+6. Install [STM32 ST-LINK utility](https://www.st.com/en/development-tools/stsw-link004.html)
 
-```
-#TODO
-```
-
-Clone repository, configure and activate virtual environment:
-
-```
-$ git clone --recurse-submodules --shallow-submodules https://github.com/SolisEV-UTCN/telemetry_tx.git telemetry_tx
-$ cd telemetry_tx
-```
+_Note 1:_ Make sure all programs' executables are added to `Environment Variables > System variables > Path`.
 
 ### Mac (WIP)
 
@@ -79,25 +70,53 @@ Install system requirements:
 #TODO
 ```
 
-Clone repository, configure and activate virtual environment:
+## Project configuration
+
+First, create an SSH key:
 
 ```
-$ git clone --recurse-submodules --shallow-submodules https://github.com/SolisEV-UTCN/telemetry_tx.git telemetry_tx
+$ ssh-keygen -t rsa -b 4096
+```
+
+Follow all default steps for creating the key and do not generate passcode for your key. Afterwards, extract public key:
+
+```
+$ cat ~/.ssh/id_rsa.pub
+```
+
+Copy public key and paste it into your GitHub account > Settings > SSH and GPG keys. Afterwards, configure your git config with your GitHub name and email.
+
+```
+$ git config --global user.name "Joe Doe" 
+$ git config --global user.email "joedoe@email.com" 
+```
+
+Finally, clone the repo:
+
+```
+$ cd ~
+$ git clone --recurse-submodules --shallow-submodules git@github.com:SolisEV-UTCN/telemetry_tx.git telemetry_tx
 $ cd telemetry_tx
 ```
 
-## Configurations
+## Building
 
-Substitute `<BUILD_TYPE>` with one of following options: 
-1. Release
-2. Debug
-3. MinSizeRel
-4. RelWithDebInfo
+Substitute options from commands in the later steps with one the values below:
 
-Substitute `<TARGET>` with one of following options: 
-1. stm32f103rb
+_NOTE 1:_ Default values are valid only for Docker and script builds.
 
-## Building with Docker
+| `<BUILD_TYPE>`   | Purpose                             |
+| ---------------- | ----------------------------------- |
+| Release          | Final, optimized version.           |
+| Debug  (default) | Development and debugging.          |
+| MinSizeRel       | Optimized for minimal binary size.  |
+| RelWithDebInfo   | Optimized build with debug symbols. |
+
+| `<TARGET>`            |
+| --------------------- |
+| stm32f103rb (default) |
+
+### Using Docker
 
 Make sure you have a docker installed and running. Docker will mount a local volume to output generated files.
 
@@ -114,23 +133,25 @@ $ scripts/build.sh -b <BUILD_TYPE> -t <TARGET>
 
 ### Using CMake
 
+After modifying `CMakeLists.txt` file, regenerate CMake configuration:
+
 ```
+$ rm -Rf build/<BUILD_TYPE>
 $ mkdir -p build/<BUILD_TYPE>
 $ cmake -GNinja -DCMAKE_TOOLCHAIN_FILE=dev/cmake/<TARGET>.cmake -DCMAKE_BUILD_TYPE=<BUILD_TYPE> -S . -B build/<BUILD_TYPE>
+```
+
+To build project run following command:
+
+```
 $ cmake --build build/<BUILD_TYPE> --clean-first
 ```
 
 ## Flashing
 
-__DO NOT FLASH DEVICES UNLESS YOU KNOW WHAT YOU DO__
+__DO NOT DISCONNECT YOUR DEVICE FROM POWER WHILE FLASHING__
 
-Flashing of the device is done after building target binaries. To flash the target install following system packages:
-
-* libusb
-* ST-Link
-* OpenOCD (only for debugging)
-
-Connect target with a ST-Link/JTAG connector. Check if device is recognized by your system. `$ st-link --probe`, this will generate information about your device. For STM32F103 Nucleo board I get following output:
+Connect target with a ST-Link/JTAG connector. Check if device is recognized by your system. `$ sudo st-link --probe`, this will generate information about your device. For STM32F103 Nucleo board I get following output:
 ```
 Found 1 stlink programmers
   version:    V2J33S25
@@ -143,13 +164,11 @@ Found 1 stlink programmers
 
 Finally, flash target `.bin` file onto FLASH memory.
 
-`$ st-flash --reset write build/Debug/stm32f303cb/vehicle_control_unit.bin 0x08000000`
+`$ sudo st-flash --reset write build/Debug/telemetry_tx.bin 0x08000000`
 
 _Note 1:_ If your device-type is unknown or you can't connect to SWD check ST-Link jumpers on the board. Also, make sure JP5 jumper is set on U5V.
 
-_Note 2:_ If you receive usb.c ERROR try using `sudo`.
-
-_NOTE 3:_ If using WSL2, you need to pass USB device from host computer. For Windows you can use [usbipd](https://github.com/dorssel/usbipd-win). Run as administrator following PowerShell commands:
+_NOTE 2:_ If using WSL2, you need to pass USB device from host computer. For Windows you can use [usbipd](https://github.com/dorssel/usbipd-win). Run as administrator following PowerShell commands:
 
 `> usbipd list` this will output all connected devices. I got following output:
 
@@ -181,15 +200,32 @@ Afterwards, you can attach this device to your WSL2 instance:
 
 `> usbipd attach -w -b 1-3`
 
-### Debugging
+## Debugging
+
+Before debugging, you need to add your USB device to OpenOCD permission group. On WSL, you have to enable `systemd` in boot config. Add following lines to `/etc/wsl.conf`.
+
+```
+[boot]
+systemd = true
+```
+
+Afterwards, restart your WSL from PowerShell:
+
+```
+> wsl --shutdown
+> wsl
+```
+
+### Using OpenOCD & GDB
 
 Debugging is done via OpenOCD and arm-none-eabi-gdb. For more information on how to debug with GDB you can read this [summary](https://jacobmossberg.se/posts/2017/01/17/use-gdb-on-arm-assembly-program.html).
 
-1. Open OpenOCD: `$ openocd -f /usr/share/openocd/scripts/interface/stlink.cfg -f /usr/share/openocd/scripts/target/<TARGET_CONF>.cfg`
-2. Start GDB with target ELF file: `$ arm-none-eabi-gdb build/<BUILD_TYPE>/<TARGET>/vehicle_control_unit`
-3. Specify source directories: `(gdb) dir <PATH_TO_REPO>/src`
-4. Connect to target: `(gdb) target extended-remote localhost:3333`
+1. Open OpenOCD: `$ openocd -f /usr/share/openocd/scripts/interface/stlink.cfg -f /usr/share/openocd/scripts/target/stm32f1x.cfg`
+2. Start GDB with target ELF file: `$ arm-none-eabi-gdb -x scripts/default_dirs.gdb build/<BUILD_TYPE>/<TARGET>/telemetry_tx.elf`
+3. Connect to target: `(gdb) target extended-remote localhost:3333`
 
-_Note 1:_ Target configs (__TARGET_CONF__) is either `stm32f1x` or `stm32f3x`.
+_Note 1:_ Commands that start with `(gdb)` should be executed from the GDB terminal.
 
-_Note 2:_ Commands that start with `(gdb)` should be executed from the GDB terminal.
+### Using Visual Studio Code
+
+1. Run either `STM32F103: Debug` or `STM32F103: RelWithDebInfo` launch options.

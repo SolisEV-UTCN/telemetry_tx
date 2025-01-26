@@ -15,8 +15,42 @@
             "preLaunchCommands": [
                 "monitor program ${workspaceFolder}/build/Debug/telemetry_tx.elf verify reset halt"
             ],
-            "searchDir": [],
+            "searchDir": [
+                "build",
+                "inc",
+                "src",
+                "libs/cmsis/Include",
+                "libs/cmsis-device-f1/Include",
+                "libs/stm32f1xx-hal-driver/Inc",
+                "libs/stm32f1xx-hal-driver/Src"
+            ],
             "showDevDebugOutput": "none"
+        },
+        {
+            "cwd": "${workspaceRoot}",
+            "executable": "${workspaceFolder}/build/RelWithDebInfo/telemetry_tx.elf",
+            "name": "STM32F103: RelWithDebInfo",
+            "request": "launch",
+            "type": "cortex-debug",
+            "servertype": "openocd",
+            "configFiles": [
+                "interface/stlink.cfg",
+                "target/stm32f1x.cfg"
+            ],
+            "preLaunchCommands": [
+                "monitor program ${workspaceFolder}/build/RelWithDebInfo/telemetry_tx.elf verify reset"
+            ],
+            "searchDir": [
+                "build",
+                "inc",
+                "src",
+                "libs/cmsis/Include",
+                "libs/cmsis-device-f1/Include",
+                "libs/stm32f1xx-hal-driver/Inc",
+                "libs/stm32f1xx-hal-driver/Src"
+            ],
+            "showDevDebugOutput": "none",
+            "runToEntryPoint": "main"
         }
     ]
 }

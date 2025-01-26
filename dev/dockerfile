@@ -2,14 +2,16 @@ FROM alpine:3.21
 
 VOLUME /build
 
-ENV BUILD_TYPE=Release
+ENV BUILD_TYPE=Debug
 ENV TARGET=stm32f103rb
 
 WORKDIR /usr/local/vcu
 
 # Install system dependencies
 RUN apk update
-RUN apk add binutils-arm-none-eabi gcc-arm-none-eabi newlib-arm-none-eabi cmake
+RUN apk add cmake ninja
+
+# Install ARM toolchain
 
 COPY . .
 

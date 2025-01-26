@@ -5,8 +5,6 @@
 #include "main.h"
 
 
-#define DEBUG_USART 0
-
 CAN_HandleTypeDef hcan;
 CRC_HandleTypeDef hcrc;
 UART_HandleTypeDef huart1;
@@ -36,14 +34,12 @@ int main(void)
   MX_CRC_Init();
 
   // Initialize CAN
-#if DEBUG_USART == 0
   HAL_CAN_Start(&hcan);
   HAL_Delay(50);
   if (HAL_CAN_ActivateNotification(&hcan, CAN_IT_RX_FIFO0_MSG_PENDING)
       != HAL_OK) {
     Error_Handler();
   }
-#endif
 
   /* Infinite loop */
   while (1) {}

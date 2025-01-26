@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Default values
-BUILD_TYPE="Release"
+BUILD_TYPE="Debug"
 TARGET="stm32f103rb"
 
 # Valid values
@@ -73,6 +73,7 @@ while [[ $# -gt 0 ]]; do
    esac
 done
 
+rm -Rf build/$BUILD_TYPE
 mkdir -p build/$BUILD_TYPE
 
 # Generate Makefiles

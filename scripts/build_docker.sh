@@ -2,7 +2,7 @@
 
 # Default values
 if [ -z "$BUILD_TYPE" ]; then
-   BUILD_TYPE=Release
+   BUILD_TYPE=Debug
 fi
 if [ -z "$TARGET" ]; then
    TARGET=stm32f103rb
