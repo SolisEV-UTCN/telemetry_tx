@@ -36,10 +36,9 @@ int main(void)
   // Initialize CAN
   HAL_CAN_Start(&hcan);
   HAL_Delay(50);
-  if (HAL_CAN_ActivateNotification(&hcan, CAN_IT_RX_FIFO0_MSG_PENDING)
-      != HAL_OK) {
+  do {
     Error_Handler();
-  }
+  } while(HAL_CAN_ActivateNotification(&hcan, CAN_IT_RX_FIFO0_MSG_PENDING) != HAL_OK);
 
   /* Infinite loop */
   while (1) {}

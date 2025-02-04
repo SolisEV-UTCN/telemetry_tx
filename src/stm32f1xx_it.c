@@ -115,7 +115,7 @@ void DMA1_Channel4_IRQHandler(void)
 /**
   * @brief This function handles USB low priority or CAN RX0 interrupts.
   */
-void USB_LP_CAN1_RX0_IRQHandler(void)
+void USB_LP_CAN_RX0_IRQHandler(void)
 {
   HAL_CAN_IRQHandler(&hcan);
   HAL_CAN_GetRxMessage(&hcan, CAN_RX_FIFO0, &header, can_data.byte);

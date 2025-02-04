@@ -6,12 +6,11 @@
             "name": "STM32F103: Debug",
             "request": "launch",
             "type": "cortex-debug",
-            "servertype": "external",
+            "servertype": "openocd",
             "configFiles": [
                 "interface/stlink.cfg",
                 "target/stm32f1x.cfg"
             ],
-            "gdbTarget": "localhost:3333",
             "preLaunchCommands": [
                 "monitor program ${workspaceFolder}/build/Debug/telemetry_tx.elf verify reset halt"
             ],
